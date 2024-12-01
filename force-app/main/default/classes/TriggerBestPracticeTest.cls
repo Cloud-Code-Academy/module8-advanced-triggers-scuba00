@@ -418,6 +418,9 @@ public with sharing class TriggerBestPracticeTest {
         Account acc = new Account(Name = 'Test Account');
         insert acc;
 
+        System.debug('acc.Id   ++++++++++++++++++++++==> ' + acc.Id);
+        System.debug('acc.Name ++++++++++++++++++++++==> ' + acc.Name);
+
         Contact primaryContact = new Contact(
             FirstName = 'Primary',
             LastName = 'Contact',
@@ -434,6 +437,13 @@ public with sharing class TriggerBestPracticeTest {
         );
 
         insert notPrimaryContact;
+
+        System.debug('notPrimaryContact.Id        $$$$$$$$$$$$==>: ' + notPrimaryContact.Id);
+        System.debug('notPrimaryContact.FirstName $$$$$$$$$$$$==>: ' + notPrimaryContact.FirstName);
+        System.debug('notPrimaryContact.LastName  $$$$$$$$$$$$==>: ' + notPrimaryContact.LastName);
+        System.debug('notPrimaryContact.AccountId $$$$$$$$$$$$==>: ' + notPrimaryContact.AccountId);
+        System.debug('notPrimaryContact.Title     $$$$$$$$$$$$==>: ' + notPrimaryContact.Title);
+
 
         List<Opportunity> oppsToInsert = new List<Opportunity>();
         Integer numberOfOpps = 200;
@@ -462,9 +472,16 @@ public with sharing class TriggerBestPracticeTest {
         List<Contact> contacts = [SELECT Id, Name FROM Contact WHERE Id = :primaryContact.Id];
         System.assertEquals(0, contacts.size(), 'Primary Contact should not exist.');
         List<Contact> moreContact = [SELECT Id, Name FROM Contact];
+        
+
         for (Opportunity opp : opps) {
+            System.debug('Test Data opp.Id                 ++++++++++++++++==> ' + opp.Id);
+            System.debug('Test Data opp.Name               ++++++++++++++++==> ' + opp.Name);
+            System.debug('Test Data opp.Primary_Contact__c ++++++++++++++++==> ' + opp.Primary_Contact__c);
+            
             System.assertEquals(notPrimaryContact.Id, opp.Primary_Contact__c, 'Opportunity Primary Contact is incorrect: ' + opp.Primary_Contact__c);
         }
+            
         Test.stopTest();
     }
 

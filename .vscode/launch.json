@@ -5,6 +5,19 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch Apex Debugger",
+      "type": "apex",
+      "request": "launch",
+      "userIdFilter": [],
+      "requestTypeFilter": [],
+      "entryPointFilter": "",
+      "logLevel":{
+        "Apex_Code": "FINEST",
+        "Visualforce": "FINER"
+      },
+      "salesforceProject": "${workspaceRoot}"
+    },
+    {
       "name": "Launch Apex Replay Debugger",
       "type": "apex-replay",
       "request": "launch",
