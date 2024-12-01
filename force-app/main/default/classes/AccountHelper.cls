@@ -27,20 +27,83 @@ Remember:
 Always ensure that your helper methods are bulk-safe to handle multiple records efficiently. 
 */
 public with sharing class AccountHelper {
-    
-    public void setTypeProspect(SObject objects){
+
+    public virtual class BaseException extends Exception {}
+    public class OtherException extends BaseException {}    
+
+    public static void setTypeProspect(List<Account> newAcctList){
+        for (Account acc : newAcctList){
+            if (acc.Type == null || acc.Type == '') {
+                acc.Type = 'Prospect';
+            }
+        }
+    }
+
+    public static void addressCopy(List<Account> newAcctList){
+
+        for(Account acc : newAcctList){
+            
+            // check if shipping address is null
+            Boolean isShippingAddressNullOrBlank = 
+                (acc.ShippingStreet == null || acc.ShippingStreet.trim() == '')
+            &&  (acc.ShippingCity == null || acc.ShippingCity.trim() == '') 
+            &&  (acc.ShippingState == null || acc.ShippingState.trim() == '') 
+            &&  (acc.ShippingPostalCode == null || acc.ShippingPostalCode.trim() == '') 
+            &&  (acc.ShippingCountry == null || acc.ShippingCountry.trim() == '');
+
+            if(!isShippingAddressNullOrBlank){
+                acc.BillingStreet = acc.ShippingStreet;
+                acc.BillingCity = acc.ShippingCity;
+                acc.BillingState = acc.ShippingState;
+                acc.BillingPostalCode = acc.ShippingPostalCode;
+                acc.BillingCountry = acc.ShippingCountry;
+            }
+
+        }
 
     }
 
-    void addressCopy(){
+    public static void setRating(List<Account> newAcctList){
+
+        for(Account acc : newAcctList){
+        // check if phone, website and fax all have values
+            Boolean isAccountRatingHotNullOrBlank = 
+                (acc.Phone == null || acc.Phone.trim() == '')
+            &&  (acc.Website == null || acc.Website.trim() == '')
+            &&  (acc.Fax == null || acc.Fax.trim() == '');
+
+            if(!isAccountRatingHotNullOrBlank){
+                acc.Rating = 'Hot';
+            }
+        }
 
     }
 
-    //[public | private ] [static] data_type setRating (input parameters) {
-    //  The body of the method
-    //}
+    public static void defaultContact (List<Account> newAcctList) {
+        // Check for Contact read and create permissions
+        if (!Schema.sObjectType.Contact.isAccessible() 
+            || !Schema.sObjectType.Contact.isCreateable()) {
+                throw new OtherException('Current user does not have permission to read or create Contact records.');
+        }
 
-    //[public | private ] [static] data_type defaultContact (input parameters) {
-    //  The body of the method
-    //}
+        List<Contact> contactsToInsert = new List<Contact>();
+
+        for(Account acc : newAcctList){
+            Contact newContact = new Contact();
+            newContact.LastName = 'DefaultContact';
+            newContact.Email = 'default@email.com';
+            newContact.AccountId = acc.Id;
+            contactsToInsert.add(newContact);
+        }
+
+        if(!contactsToInsert.isEmpty()){
+            try {
+                insert contactsToInsert;
+            } catch (DmlException e) {
+                System.debug('Error inserting contacts: ' + e.getMessage());
+            }
+        }        
+
+    }
+
 }

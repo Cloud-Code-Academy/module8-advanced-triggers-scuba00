@@ -37,5 +37,8 @@
     "**/{aura,lwc}/**": [
       "eslint"
     ]
+  },
+  "dependencies": {
+    "punycode": "^2.3.1"
   }
 }
